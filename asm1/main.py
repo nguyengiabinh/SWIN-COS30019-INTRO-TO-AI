@@ -37,18 +37,18 @@ def main():
 
     # Perform the selected search algorithm
     if search_algorithm == 'astar':
-        path, visited = a_star_search(grid_map, start_position, goal_positions[0]) 
+        path, visited = a_star_search(grid_map, start_position, goal_positions) 
     elif search_algorithm == 'bfs':
-        path, visited = bfs_search(grid_map, start_position, goal_positions[0])
+        path, visited = bfs_search(grid_map, start_position, goal_positions)
     elif search_algorithm == 'dfs':
-        path, visited = dfs_search(grid_map, start_position, goal_positions[0])
+        path, visited = dfs_search(grid_map, start_position, goal_positions)
     elif search_algorithm == 'gbfs':
-        path, visited = greedy_best_first_search(grid_map, start_position, goal_positions[0])
+        path, visited = greedy_best_first_search(grid_map, start_position, goal_positions)
     elif search_algorithm == 'iddfs':
-        path, visited = iddfs_search(grid_map, start_position, goal_positions[0])
+        path, visited = iddfs_search(grid_map, start_position, goal_positions)
     elif search_algorithm == 'astar_weighted':
         weight = float(input("Enter the weight for A* search: "))
-        path, visited = a_star_search_weighted(grid_map, start_position, goal_positions[0], weight)
+        path, visited = a_star_search_weighted(grid_map, start_position, goal_positions, weight)
 
     # Display the results
     if path:
@@ -70,3 +70,16 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,81 +1,99 @@
-import heapq
-import math
+import queue
 
-def greedy_best_first_search(grid, start, goal):
-    # Get the number of rows and columns in the grid
+# Represent a position in the grid with heuristic information
+class Node:
+    def __init__(self, position, heuristic):
+        self.position = position
+        self.heuristic = heuristic
+
+    # Comparison for priority queue ordering based on heuristic
+    def __lt__(self, other):
+        return self.heuristic < other.heuristic
+
+# Heuristic function (Manhattan)
+def heuristic_cost_estimate(current, goal):
+    return abs(goal[0] - current[0]) + abs(goal[1] - current[1])
+
+# Explore neighbors for a given node
+def explore_neighbors(grid, current_node, visited_set, came_from, initial_goal):
     rows, columns = len(grid), len(grid[0])
+    neighbors = []
 
-    # Initialize a set to keep track of visited positions
-    visited = set()
+    # Prioritize neighbors in the order: up, left, down, right
+    movements = [(-1, 0), (0, -1), (1, 0), (0, 1)]
 
-    # Initialize a priority queue to store positions and their costs
-    priority_queue = []
+    for movement in movements:
+        neighbor_position = (
+            current_node.position[0] + movement[0], current_node.position[1] + movement[1]
+        )
 
-    # Dictionary to store the parent position of each position in the path
-    came_from = {}
+        # Check if the neighbor is within the grid and not an obstacle
+        if (
+            0 <= neighbor_position[0] < columns
+            and 0 <= neighbor_position[1] < rows
+            and grid[neighbor_position[1]][neighbor_position[0]] != "B"
+        ):
+            neighbor_node = Node(
+                neighbor_position, heuristic_cost_estimate(neighbor_position, initial_goal)
+            )
+            neighbors.append(neighbor_node)
 
-    # Push the start position with cost 0 into the priority queue
-    heapq.heappush(priority_queue, (0, start))
+    # Sort neighbors based on movement priority: up, left, down, right
+    neighbors.sort(
+        key=lambda x: movements.index(
+            (x.position[0] - current_node.position[0], x.position[1] - current_node.position[1])
+        )
+    )
 
-    # Euclidean heuristic function to estimate the cost from a position to the goal
-    def heuristic(position):
-        return math.sqrt((position[0] - goal[0]) ** 2 + (position[1] - goal[1]) ** 2) + obstacle_cost(position)
+    return neighbors
 
-    # determine the cost associated with obstacles at a position
-    def obstacle_cost(position):
-        x, y = position
-        return math.inf if grid[y][x] == 'B' else 0  # Use infinity as the obstacle cost
+def greedy_best_first_search(grid, start, goals):
 
-    # determine the sorting order in the priority queue
-    def sort_key(neighbor):
-        x, y = neighbor
-        heuristic_value = heuristic(neighbor)
-        movement_priority = {(0, -1): 1, (-1, 0): 2, (0, 1): 3, (1, 0): 4}
-        return (heuristic_value, movement_priority.get(neighbor, 5), x, y)
+    # Priority queue to store nodes based on their heuristic
+    open_set = queue.PriorityQueue()
 
-    # Main loop
-    while priority_queue:
-        current_cost, current_position = heapq.heappop(priority_queue)
+    # Choose the goal with the minimum heuristic as the initial goal
+    initial_goal = min(goals, key=lambda goal: heuristic_cost_estimate(start, goal))
 
-        # If the current position is the goal, reconstruct the path and return it
-        if current_position == goal:
-            path = reconstruct_path(current_position, came_from)
-            return path, visited
+    start_node = Node(start, heuristic_cost_estimate(start, initial_goal))
+    open_set.put(start_node)
 
-        # If the current position is not visited, mark it as visited
-        if current_position not in visited:
-            visited.add(current_position)
+    # Dictionary to store the parent of each node in the optimal path
+    came_from = {start: None}
 
-            # Get the neighbors of the current position
-            neighbors = get_neighbors(current_position, grid, rows, columns)
+    # Set to store visited nodes
+    visited_set = set()
 
-            # Sort the neighbors based on the sort_key function
-            neighbors.sort(key=sort_key)
+    while not open_set.empty():
+        current_node = open_set.get()
+        visited_set.add(current_node.position)
 
-            # Explore each neighbor and add it to the priority queue
-            for neighbor_position in neighbors:
-                if neighbor_position not in visited:
-                    neighbor_cost = current_cost + heuristic(neighbor_position)
-                    heapq.heappush(priority_queue, (neighbor_cost, neighbor_position))
-                    came_from[neighbor_position] = current_position
+        if current_node.position in goals:
+            return reconstruct_path(came_from, current_node.position), visited_set
 
-    return None, visited
+        # Explore neighbors
+        neighbors = explore_neighbors(grid, current_node, visited_set, came_from, initial_goal)
 
-# Function to reconstruct the path from the goal to the start using the came_from dictionary
-def reconstruct_path(goal, came_from):
-    path = [goal]
-    while came_from.get(path[-1]):
-        path.append(came_from[path[-1]])
+        # Update the optimal path
+        for neighbor in neighbors:
+            if (
+                neighbor.position not in visited_set
+                and neighbor.position not in came_from
+            ):
+                open_set.put(neighbor)
+                came_from[neighbor.position] = current_node.position
+
+    return None, visited_set
+
+# Reconstruct the path from the start to the current position using the came_from dictionary
+def reconstruct_path(came_from, current):
+    path = []
+    while current:
+        path.append(current)
+        current = came_from[current]
     return path[::-1]
 
-# Function to get the neighbors of a position in the grid
-def get_neighbors(position, grid, rows, columns):
-    neighbors = []
-    for move in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
-        neighbor_position = (position[0] + move[0], position[1] + move[1])
-        if 0 <= neighbor_position[0] < columns and 0 <= neighbor_position[1] < rows:
-            neighbors.append(neighbor_position)
-    return neighbors
+
 
 
 

@@ -25,3 +25,9 @@ def interpret_movements(path):
 def count_nodes_visited(visited):
     # Count the number of nodes visited
     return len(visited)
+
+
+
+
+
+
