@@ -1,4 +1,4 @@
-def dfs_search(grid, start, goal):
+def dfs_search(grid, start, goals):
     # Get the number of rows and columns in the grid
     rows, columns = len(grid), len(grid[0])
 
@@ -24,8 +24,8 @@ def dfs_search(grid, start, goal):
         # Mark the current position as visited
         visited.add(current_position)
 
-        # If the current position is the goal, return the path and visited set
-        if current_position == goal:
+        # If the current position is in the list of goals, return the path and visited set
+        if current_position in goals:
             return path + [current_position], visited
 
         # Explore neighbors in the prioritized order
@@ -41,3 +41,4 @@ def dfs_search(grid, start, goal):
 
     # Start the depth-first search from the given start position
     return dfs(start, [])
+

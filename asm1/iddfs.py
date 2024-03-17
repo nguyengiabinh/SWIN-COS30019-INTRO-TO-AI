@@ -1,31 +1,31 @@
 import sys
 from dfs_search import dfs_search
 
-def iddfs_search(grid, start, goal):
+def iddfs_search(grid, start, goals):
     # Use sys.maxsize to represent a large integer value as the initial depth limit
     max_depth_limit = sys.maxsize
 
     # Iterate through depth limits starting from 0 up to max_depth_limit
     for depth_limit in range(max_depth_limit):
         # Perform depth-limited DFS search with the current depth limit
-        result, visited_set = dfs_search_with_depth_limit(grid, start, goal, depth_limit)
+        result, visited_set = dfs_search_with_depth_limit(grid, start, goals, depth_limit)
 
-        # If the goal is found within the depth limit, return the result and visited set
+        # If a path to any goal is found within the depth limit, return the result and visited set
         if result is not None:
             return result, visited_set
 
-    # If the goal is not found within the depth limit, return None and the visited set
+    # If no path to any goal is found within the depth limit, return None and the visited set
     return None, visited_set
 
-def dfs_search_with_depth_limit(grid, start, goal, depth_limit):
+def dfs_search_with_depth_limit(grid, start, goals, depth_limit):
     rows, columns = len(grid), len(grid[0])
     visited = set()
 
     def dfs(current_position, path, current_depth):
         visited.add(current_position)
 
-        # If the current position is the goal, return the path and visited set
-        if current_position == goal:
+        # If the current position is in the list of goals, return the path and visited set
+        if current_position in goals:
             return path + [current_position], visited
 
         # If the current depth exceeds the depth limit, stop the DFS exploration

@@ -24,11 +24,15 @@ def reconstruct_path(came_from, current):
         path.append(current)
     return path[::-1]
 
-def a_star_search_weighted(grid, start, goal, weight):
+def a_star_search_weighted(grid, start, goals, weight):
     # A* search algorithm with weighted heuristic
     rows, columns = len(grid), len(grid[0])
     open_set = queue.PriorityQueue()
-    open_set.put(Node(start, 0, weight * heuristic_cost_estimate(start, goal)))  # Include weight in the heuristic
+
+    initial_goal = min(goals, key=lambda goal: heuristic_cost_estimate(start, goal))
+
+    start_node = Node(start, 0, weight * heuristic_cost_estimate(start, initial_goal))
+    open_set.put(start_node)  # Include weight in the heuristic
     came_from = {}
     g_score = {start: 0}
     visited_set = set()
@@ -37,7 +41,7 @@ def a_star_search_weighted(grid, start, goal, weight):
         current_node = open_set.get()
         visited_set.add(current_node.position)
 
-        if current_node.position == goal:
+        if current_node.position == initial_goal:
             # Goal reached, reconstruct and return the path
             return reconstruct_path(came_from, current_node.position), visited_set
 
@@ -50,7 +54,7 @@ def a_star_search_weighted(grid, start, goal, weight):
                 if neighbor_position not in g_score or tentative_g_score < g_score[neighbor_position]:
                     # Update the g_score and add the neighbor to the priority queue
                     g_score[neighbor_position] = tentative_g_score
-                    open_set.put(Node(neighbor_position, tentative_g_score, weight * heuristic_cost_estimate(neighbor_position, goal)))  # Include weight in the heuristic
+                    open_set.put(Node(neighbor_position, tentative_g_score, weight * heuristic_cost_estimate(neighbor_position, initial_goal)))  # Include weight in the heuristic
                     came_from[neighbor_position] = current_node.position
 
     return None, visited_set

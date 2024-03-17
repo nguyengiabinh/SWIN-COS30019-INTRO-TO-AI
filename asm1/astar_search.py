@@ -23,12 +23,18 @@ def reconstruct_path(came_from, current):
         path.append(current)
     return path[::-1]
 
-def a_star_search(grid, start, goal):
+def a_star_search(grid, start, goals):
     rows, columns = len(grid), len(grid[0])
     
     # Priority queue to store nodes based on their total cost
     open_set = queue.PriorityQueue()
-    open_set.put(Node(start, 0, heuristic_cost_estimate(start, goal)))
+
+
+    # Choose the goal with the minimum heuristic as the initial goal
+    initial_goal = min(goals, key=lambda goal: heuristic_cost_estimate(start, goal))
+
+    start_node = Node(start, 0, heuristic_cost_estimate(start, initial_goal))
+    open_set.put(start_node)
     
     # Dictionary to store the parent of each node in the optimal path
     came_from = {}
@@ -43,7 +49,7 @@ def a_star_search(grid, start, goal):
         current_node = open_set.get()
         visited_set.add(current_node.position)
 
-        if current_node.position == goal:
+        if current_node.position == initial_goal:
             return reconstruct_path(came_from, current_node.position), visited_set
 
         # Explore neighbors
@@ -57,7 +63,7 @@ def a_star_search(grid, start, goal):
                 # Update if this path to the neighbor is better
                 if neighbor_position not in g_score or tentative_g_score < g_score[neighbor_position]:
                     g_score[neighbor_position] = tentative_g_score
-                    open_set.put(Node(neighbor_position, tentative_g_score, heuristic_cost_estimate(neighbor_position, goal)))
+                    open_set.put(Node(neighbor_position, tentative_g_score, heuristic_cost_estimate(neighbor_position, initial_goal)))
                     came_from[neighbor_position] = current_node.position
 
     return None, visited_set
