@@ -47,16 +47,12 @@ def main():
     elif search_algorithm == 'iddfs':
         path, visited = iddfs_search(grid_map, start_position, goal_positions)
     elif search_algorithm == 'astar_weighted':
-<<<<<<< Updated upstream
-        weight = float(input("Enter the weight for A* search: "))
-=======
         while True:
             try:
                 weight = float(input("Enter the weight for A* search: "))
                 break  
             except ValueError:
                 print("Invalid input. This is probably not something that can be convert into a float")
->>>>>>> Stashed changes
         path, visited = a_star_search_weighted(grid_map, start_position, goal_positions, weight)
 
     # Display the results
